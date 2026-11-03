@@ -7,7 +7,8 @@ COPY main.py .
 
 # Supplied at runtime via docker-compose / root .env
 ENV CLOUDFLARE_API_TOKEN="" \
-    CLOUDFLARE_ACCOUNT_ID=""
+    CLOUDFLARE_ACCOUNT_ID="" \
+    CLOUDFLARE_AI_MODEL=""
 
 EXPOSE 8080
 HEALTHCHECK --interval=5s --timeout=3s --retries=20 --start-period=5s \

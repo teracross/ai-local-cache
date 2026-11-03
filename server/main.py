@@ -15,17 +15,20 @@ logging.basicConfig(level=logging.INFO)
 log = logging.getLogger("router")
 
 MODEL = "qwen3.5:0.8b"
+CLOUDFLARE_AI_MODEL = os.getenv("CLOUDFLARE_AI_MODEL")
 OLLAMA_URL = "http://embedding:11434"
 CACHE_TTL_SECONDS = 30 * 24 * 60 * 60  # 30 days
 HIT_THRESHOLD = 0.90   # >= : serve straight from vector cache
 RAG_THRESHOLD = 0.70   # >= : local LLM with RAG; below: cloud
 RAG_TOP_K = 3
 COLLECTION_NAME = "qa_cache"
+CHROMA_PORT = 8000
+REDIS_PORT = 6379
 
 app = FastAPI(title="ai-local-cache")
 
-redis_client = redis.Redis(host="cache", port=6379, decode_responses=True)
-chroma_client = chromadb.HttpClient(host="db", port=8000)
+redis_client = redis.Redis(host="cache", port=REDIS_PORT, decode_responses=True)
+chroma_client = chromadb.HttpClient(host="db", port=CHROMA_PORT)
 
 
 def get_collection():
@@ -85,7 +88,7 @@ def call_cloud_agent(prompt: str) -> str:
         base_url=f"https://gateway.ai.cloudflare.com/v1/{os.getenv('CLOUDFLARE_ACCOUNT_ID')}/ai-gateway/compat",
     )
     response = client.chat.completions.create(
-        model="cloudflare/auto",
+        model=CLOUDFLARE_AI_MODEL,
         messages=[{"role": "user", "content": prompt}],
     )
     return response.choices[0].message.content

@@ -11,7 +11,7 @@ Cloud AI free tiers are rate-limited. This project caches text answers from clou
 ```
 .
 ├── docker-compose.yml   # Orchestrates all services and startup order
-├── .env                 # (you create) Cloudflare credentials
+├── .env.local           # (you update) Cloudflare credentials and AI Gateway configurations
 ├── client/              # Nginx + static UI (index.html, app.js)
 ├── server/              # FastAPI orchestrator (main.py)
 ├── db/                  # ChromaDB vector store
@@ -41,6 +41,20 @@ Startup order (via healthcheck-based `depends_on`): `db`, `embedding`, `cache` �
 
 Notes: Redis has no global max-TTL setting, so the server applies the 30-day TTL to every key it writes. The first start downloads the model, so `embedding` may take a few minutes to become healthy.
 
+### Cloudflare Configuration & Model Routing
+
+By default, the backend routes requests to the cloud using Cloudflare AI Gateway's Universal Endpoint in compatibility mode.
+
+* **Default Endpoint:** `https://cloudflare.com<ACCOUNT_ID>/ai-gateway/compat`
+* **Default Model:** `cloudflare/auto` (Cloudflare automatically determines the model based on your prompt).
+
+#### Prerequisites
+1. **AI Gateway Enabled:** You must have an active AI Gateway created in your Cloudflare dashboard.
+2. **Environment Variables:** Ensure `CLOUDFLARE_ACCOUNT_ID` and `CLOUDFLARE_API_TOKEN` are set correctly in your `.env` file.
+
+> [!TIP]
+> **Custom Routing:** While `cloudflare/auto` provides a quick zero-configuration fallback, it is highly recommended to set up custom dynamic routing rules within your Cloudflare AI Gateway dashboard for finer control over model fallback strategies, providers, and rate limits.
+
 ## Deployment
 
 Prerequisites: Docker with Compose, and Node.js for Wrangler (`npm i -g wrangler`, then `wrangler login`).
@@ -56,12 +70,10 @@ Prerequisites: Docker with Compose, and Node.js for Wrangler (`npm i -g wrangler
 
   
 4. Start everything:
-
+To run things locally for testing and development. 
    ```
-   docker compose up --build -d
+   docker compose --env-file .env.local up -d
    ```
 5. Open http://localhost:8080.
 
 Stop with `docker compose down` (add `-v` to also delete the model and vector data).
-
-> The server calls `https://gateway.ai.cloudflare.com/v1/<ACCOUNT_ID>/ai-gateway/compat` with model `cloudflare/auto`, so AI Gateway must be enabled on your account.
