@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>AI Local Cache</title>
+  <style>
+    body { font-family: system-ui, sans-serif; max-width: 720px; margin: 2rem auto; padding: 0 1rem; }
+    #prompt { width: 75%; padding: .5rem; }
+    button { padding: .5rem 1rem; }
+    #answer { white-space: pre-wrap; margin-top: 1rem; }
+    .badge { display: inline-block; padding: .2rem .6rem; border-radius: 1rem; color: #fff; font-size: .8rem; }
+    .redis_exact_cache { background: #d82c20; }
+    .vector_cache { background: #6f42c1; }
+    .local_llm_rag { background: #2b8a3e; }
+    .cloud_agent { background: #f48120; }
+    .error { background: #555; }
+  </style>
+</head>
+<body>
+  <h1>AI Local Cache</h1>
+  <input id="prompt" type="text" placeholder="Ask a question..." autofocus>
+  <button id="send">Send</button>
+  <div id="badge"></div>
+  <div id="answer"></div>
+  <script src="app.js"></script>
+</body>
+</html>
